@@ -2804,17 +2804,15 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
     return !1;
   };
   
-  // Play sound effect - ONLY during opening (from modal show to result show)
+  // Play sound effect - ONLY during opening
   const L = () => {
     try {
       const H = new (window.AudioContext || window.webkitAudioContext)();
-      // Create a continuous spinning sound
       const F = H.createOscillator();
       const D = H.createGain();
       F.connect(D);
       D.connect(H.destination);
       
-      // Descending pitch effect
       F.frequency.setValueAtTime(600, H.currentTime);
       F.frequency.exponentialRampToValueAtTime(100, H.currentTime + 2.5);
       
@@ -2823,9 +2821,6 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
       
       F.start(H.currentTime);
       F.stop(H.currentTime + 2.5);
-      
-      // Store reference so we can stop it if needed
-      B(F);
     } catch (H) {}
   };
   
@@ -2852,17 +2847,18 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
     e();
   };
   
-  // OPEN crate
+  // OPEN crate - FIXED: Set modal state BEFORE sound
   const H = async (F) => {
     if (v[F] <= 0 || n) return;
     
+    // SET MODAL STATE FIRST - this shows "Opening Crate..."
     r(!0);
     m(!0);
     o(null);
     u(null);
     d(0);
     
-    // START SOUND IMMEDIATELY when modal appears
+    // THEN play sound
     L();
     
     const D = await ke.getUser(t.studentId);
@@ -2905,7 +2901,6 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
         clearInterval(ea);
         d(da);
         
-        // SOUND ENDS HERE - result is now showing
         (async () => {
           const fa = await ke.getUser(t.studentId);
           if (fa) {
@@ -2916,51 +2911,27 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
             };
             await ke.saveUser(ga);
             
-            // CREATE DELIVERY NOTIFICATION in Ace Controls (same format as Vault)
-            if (K.type === "role") {
-              const ha = {
-                id: `loot-role-${Date.now()}`,
-                buyerId: t.studentId,
-                buyerName: t.username,
-                crateName: T[F].name,
-                roleName: K.name,
-                rarity: K.rarity,
-                timestamp: new Date().toISOString(),
-                delivered: !1,
-                type: "loot_role"
-              };
-              
-              try {
-                // Use the same purchaseLogs system as Vault
-                const ia = Gq(ht);
-                ia.set(Pt(ht, "purchaseLogs", ha.id), ha);
-                await ia.commit();
-              } catch (ja) {
-                console.error("Error creating loot delivery:", ja);
-              }
-            } else {
-              // Points/Spades rewards also create a log
-              const ha = {
-                id: `loot-reward-${Date.now()}`,
-                buyerId: t.studentId,
-                buyerName: t.username,
-                crateName: T[F].name,
-                rewardName: K.name,
-                rewardType: K.type,
-                rewardValue: K.value,
-                rarity: K.rarity,
-                timestamp: new Date().toISOString(),
-                delivered: !0,
-                type: "loot_reward"
-              };
-              
-              try {
-                const ia = Gq(ht);
-                ia.set(Pt(ht, "purchaseLogs", ha.id), ha);
-                await ia.commit();
-              } catch (ja) {
-                console.error("Error creating reward log:", ja);
-              }
+            // CREATE DELIVERY LOG with CORRECT FORMAT for Ace Controls
+            const ha = {
+              id: `loot-${Date.now()}`,
+              buyerId: t.studentId,
+              buyerName: t.username,
+              artTitle: K.type === "role" ? K.name : K.name,
+              price: T[F].points > 0 ? T[F].points : T[F].spades,
+              currencyUsed: T[F].points > 0 ? "points" : "spades",
+              timestamp: new Date().toISOString(),
+              delivered: K.type === "points" || K.type === "spades" ? !0 : !1,
+              rewardType: K.type,
+              crateName: T[F].name,
+              rarity: K.rarity
+            };
+            
+            try {
+              const ia = Gq(ht);
+              ia.set(Pt(ht, "purchaseLogs", ha.id), ha);
+              await ia.commit();
+            } catch (ja) {
+              console.error("Error creating loot log:", ja);
             }
             
             e();
