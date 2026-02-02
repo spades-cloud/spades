@@ -2804,7 +2804,7 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
     return !1;
   };
   
-  // Play sound effect
+  // Play sound effect - ALWAYS plays
   const L = (B) => {
     try {
       const H = new (window.AudioContext || window.webkitAudioContext)();
@@ -2853,6 +2853,24 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
     
     await ke.saveUser(W);
     E(W.lootInventory);
+    
+    // Create delivery notification in Ace Controls (same as Vault purchases)
+    const G = {
+      id: `loot-buy-${Date.now()}`,
+      type: "loot_purchase",
+      studentId: t.studentId,
+      studentName: t.username,
+      crateName: F.name,
+      cost: F.points > 0 ? `${F.points} Points` : `${F.spades} Spades`,
+      timestamp: new Date().toISOString(),
+      message: `${t.username} purchased ${F.name}`,
+      status: "pending_delivery"
+    };
+    
+    try {
+      await ke.createNotification(G);
+    } catch (Z) {}
+    
     e();
   };
   
@@ -2865,6 +2883,9 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
     o(null);
     u(null);
     d(0);
+    
+    // PLAY SOUND IMMEDIATELY
+    L("spin");
     
     const D = await ke.getUser(t.studentId);
     if (!D) return;
@@ -2918,16 +2939,18 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
             };
             await ke.saveUser(fa);
             
+            // If Discord role, create delivery notification in Ace Controls
             if (q.type === "role") {
               const ga = {
-                id: `loot-${Date.now()}`,
-                type: "loot_role",
+                id: `loot-role-${Date.now()}`,
+                type: "loot_role_delivery",
                 studentId: t.studentId,
                 studentName: t.username,
                 roleName: q.name,
                 rarity: q.rarity,
                 timestamp: new Date().toISOString(),
-                message: `${t.username} unlocked ${q.name} from Loot Shop`
+                message: `${t.username} unlocked ${q.name} from Loot Shop`,
+                status: "pending_delivery"
               };
               try {
                 await ke.createNotification(ga);
@@ -3000,8 +3023,8 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
                   }),
                   x.jsx("button", {
                     onClick: () => A(F),
-                    className: "text-xs font-mono text-brand-gold hover:text-yellow-300 mb-3 transition-colors",
-                    children: `View ${R[F].length} Rewards`
+                    className: "text-xs font-mono text-brand-gold hover:text-yellow-300 mb-3 transition-colors border-b border-brand-gold/50 hover:border-brand-gold pb-1 inline-block mx-auto",
+                    children: `✦ View ${R[F].length} Rewards ✦`
                   }),
                   x.jsxs("div", {
                     className: "space-y-2 mb-4",
@@ -3102,10 +3125,20 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
                   children: "Opening Crate..."
                 }),
                 x.jsxs("div", {
-                  className: "mb-12 h-24 flex items-center justify-center",
+                  className: "mb-12 h-32 flex items-center justify-center relative overflow-hidden rounded-xl bg-gradient-to-br from-black/50 to-black/80 border border-brand-gold/20",
                   children: [
+                    x.jsx("style", {
+                      children: `@keyframes pulse-glow { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } } .loot-animation { animation: pulse-glow 0.6s ease-in-out infinite; }`
+                    }),
                     x.jsx("div", {
-                      className: "text-4xl font-display font-black text-white text-center transition-all duration-100",
+                      className: "absolute inset-0 flex items-center justify-center",
+                      children: x.jsx("div", {
+                        className: "text-6xl loot-animation",
+                        children: "✨"
+                      })
+                    }),
+                    x.jsx("div", {
+                      className: "relative z-10 text-3xl font-display font-black text-white text-center transition-all duration-100",
                       children: R[u] && R[u][f] ? R[u][f].name : ""
                     })
                   ]
