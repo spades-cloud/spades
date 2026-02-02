@@ -2831,6 +2831,7 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
     m(!0);
     o(null);
     u(null);
+    d(0);
     
     // Deduct cost immediately
     const j = v[R];
@@ -2861,8 +2862,8 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
     
     // Scrolling animation
     let q = 0;
-    const K = 0.05; // Duration per cycle
-    const X = 2.5; // Total duration
+    const K = 0.05;
+    const X = 2.5;
     const Y = Math.floor(X / K);
     const _ = H.indexOf(D);
     
@@ -2894,6 +2895,13 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
         })();
       }
     }, K * 1000);
+  };
+  
+  const closeModal = () => {
+    o(null);
+    u(null);
+    m(!1);
+    d(0);
   };
   
   return x.jsxs("div", {
@@ -2985,10 +2993,12 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
           }, R);
         })
       }),
-      m && x.jsx("div", {
+      h && x.jsx("div", {
         className: "fixed inset-0 bg-black/98 backdrop-blur-lg flex items-center justify-center z-[9999] p-4",
+        onClick: closeModal,
         children: x.jsxs("div", {
           className: "w-full max-w-md",
+          onClick: (e) => e.stopPropagation(),
           children: [
             x.jsxs("div", {
               className: "bg-gradient-to-b from-neutral-900 to-black border-2 border-brand-gold rounded-[32px] p-12 text-center glass-panel shadow-2xl",
@@ -3001,8 +3011,8 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
                   className: "mb-12 h-24 flex items-center justify-center",
                   children: [
                     x.jsx("div", {
-                      className: "text-6xl font-display font-black text-white text-center transition-all duration-100",
-                      children: E[l] ? E[l][f].name : ""
+                      className: "text-5xl font-display font-black text-white text-center transition-all duration-100",
+                      children: E[l] && E[l][f] ? E[l][f].name : ""
                     })
                   ]
                 }),
@@ -3035,7 +3045,7 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
                       children: "Discord Role Unlocked!"
                     }),
                     x.jsx("button", {
-                      onClick: () => { o(null); u(null); m(!1); d(0); },
+                      onClick: closeModal,
                       className: "w-full py-4 bg-brand-red text-white font-black uppercase tracking-[0.2em] rounded-xl hover:bg-red-600 transition-all active:scale-95 shadow-xl",
                       children: "OPEN ANOTHER"
                     })
