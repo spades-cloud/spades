@@ -2756,33 +2756,33 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
   
   // FIXED PRICES
   const v = {
-    bronze: { points: 500, spades: 0, name: "Bronze Crate", emoji: "📦", color: "#8B7355" },
-    silver: { points: 1500, spades: 0, name: "Silver Crate", emoji: "🎁", color: "#C0C0C0" },
-    gold: { points: 0, spades: 5, name: "Gold Crate", emoji: "💎", color: "#FFD700" }
+    bronze: { points: 500, spades: 0, name: "Bronze Crate", emoji: "📦" },
+    silver: { points: 1500, spades: 0, name: "Silver Crate", emoji: "🎁" },
+    gold: { points: 0, spades: 5, name: "Gold Crate", emoji: "💎" }
   };
   
-  // REWARD TABLES with Discord roles and items
+  // REWARD TABLES with cool Discord roles
   const E = {
     bronze: [
-      { name: "50 Points", value: 50, type: "points", rarity: "common", color: "#3b82f6" },
-      { name: "100 Points", value: 100, type: "points", rarity: "common", color: "#3b82f6" },
-      { name: "25 Points", value: 25, type: "points", rarity: "common", color: "#3b82f6" },
-      { name: "@Member", value: 0, type: "role", rarity: "common", color: "#3b82f6" },
-      { name: "500 Points", value: 500, type: "points", rarity: "uncommon", color: "#8b8b8b" }
+      { name: "50 Points", value: 50, type: "points", rarity: "common", color: "#3b82f6", label: "Common" },
+      { name: "100 Points", value: 100, type: "points", rarity: "common", color: "#3b82f6", label: "Common" },
+      { name: "25 Points", value: 25, type: "points", rarity: "common", color: "#3b82f6", label: "Common" },
+      { name: "@Code Novice", value: 0, type: "role", rarity: "common", color: "#3b82f6", label: "Common" },
+      { name: "500 Points", value: 500, type: "points", rarity: "uncommon", color: "#8b8b8b", label: "Uncommon" }
     ],
     silver: [
-      { name: "500 Points", value: 500, type: "points", rarity: "uncommon", color: "#8b8b8b" },
-      { name: "@Contributor", value: 0, type: "role", rarity: "uncommon", color: "#8b8b8b" },
-      { name: "1500 Points", value: 1500, type: "points", rarity: "epic", color: "#fbbf24" },
-      { name: "@Master Dev", value: 0, type: "role", rarity: "epic", color: "#fbbf24" },
-      { name: "5 Spades", value: 5, type: "spades", rarity: "epic", color: "#fbbf24" }
+      { name: "500 Points", value: 500, type: "points", rarity: "uncommon", color: "#8b8b8b", label: "Uncommon" },
+      { name: "@Algorithm Master", value: 0, type: "role", rarity: "uncommon", color: "#8b8b8b", label: "Uncommon" },
+      { name: "1500 Points", value: 1500, type: "points", rarity: "epic", color: "#fbbf24", label: "Epic" },
+      { name: "@Quantum Architect", value: 0, type: "role", rarity: "epic", color: "#fbbf24", label: "Epic" },
+      { name: "5 Spades", value: 5, type: "spades", rarity: "epic", color: "#fbbf24", label: "Epic" }
     ],
     gold: [
-      { name: "2 Spades", value: 2, type: "spades", rarity: "legendary", color: "#a855f7" },
-      { name: "@Elite Coder", value: 0, type: "role", rarity: "legendary", color: "#a855f7" },
-      { name: "10 Spades", value: 10, type: "spades", rarity: "legendary", color: "#a855f7" },
-      { name: "@Hacker", value: 0, type: "role", rarity: "mythical", color: "#ef4444" },
-      { name: "20 Spades", value: 20, type: "spades", rarity: "mythical", color: "#ef4444" }
+      { name: "2 Spades", value: 2, type: "spades", rarity: "legendary", color: "#a855f7", label: "Legendary" },
+      { name: "@Cryptographic Sage", value: 0, type: "role", rarity: "legendary", color: "#a855f7", label: "Legendary" },
+      { name: "10 Spades", value: 10, type: "spades", rarity: "legendary", color: "#a855f7", label: "Legendary" },
+      { name: "@Mythic Coder", value: 0, type: "role", rarity: "mythic", color: "#ef4444", label: "Mythic" },
+      { name: "20 Spades", value: 20, type: "spades", rarity: "mythic", color: "#ef4444", label: "Mythic" }
     ]
   };
   
@@ -2877,7 +2877,7 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
         d(_);
         A("land");
         
-        // Award prize
+        // Award prize and send notification if Discord role
         (async () => {
           const ba = await ke.getUser(t.studentId);
           if (ba) {
@@ -2887,6 +2887,24 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
               spadesBalance: D.type === "spades" ? (ba.spadesBalance || 0) + D.value : (ba.spadesBalance || 0)
             };
             await ke.saveUser(ca);
+            
+            // If Discord role, create notification in admin panel
+            if (D.type === "role") {
+              const da = {
+                id: `loot-${Date.now()}`,
+                type: "loot_role",
+                studentId: t.studentId,
+                studentName: t.username,
+                roleName: D.name,
+                rarity: D.rarity,
+                timestamp: new Date().toISOString(),
+                message: `${t.username} unlocked ${D.name} from Loot Shop`
+              };
+              try {
+                await ke.createNotification(da);
+              } catch (ea) {}
+            }
+            
             e();
           }
           o(D);
@@ -2944,45 +2962,50 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
                 })
               }),
               x.jsxs("div", {
-                className: "p-8 relative z-10 text-center flex flex-col h-full",
+                className: "p-6 relative z-10 text-center flex flex-col h-full",
                 children: [
                   x.jsx("h3", {
-                    className: "text-2xl font-display font-black text-white mb-4 uppercase",
+                    className: "text-2xl font-display font-black text-white mb-3 uppercase",
                     children: j.name
                   }),
                   x.jsxs("div", {
-                    className: "mb-6 space-y-2 text-left bg-black/40 p-4 rounded-xl border border-white/5 flex-1",
+                    className: "mb-4 space-y-1 text-left bg-black/40 p-3 rounded-xl border border-white/5 flex-1",
                     children: [
                       x.jsx("p", {
-                        className: "text-[10px] text-neutral-400 uppercase font-black mb-3 tracking-[0.1em]",
-                        children: "Possible Rewards"
+                        className: "text-[9px] text-neutral-400 uppercase font-black mb-2 tracking-[0.1em]",
+                        children: "Rewards"
                       }),
                       E[R].map((B, H) => x.jsxs("div", {
-                        className: "flex items-center gap-2 text-xs",
+                        className: "flex items-center gap-2 text-[11px]",
                         children: [
                           x.jsx("div", {
-                            className: "w-2 h-2 rounded-full",
+                            className: "w-2 h-2 rounded-full flex-shrink-0",
                             style: { backgroundColor: B.color }
                           }),
                           x.jsx("span", {
-                            className: "text-neutral-300",
+                            className: "text-neutral-300 flex-1",
                             children: B.name
+                          }),
+                          x.jsx("span", {
+                            className: "text-[9px] font-mono font-bold flex-shrink-0",
+                            style: { color: B.color },
+                            children: B.label
                           })
                         ]
                       }, H))
                     ]
                   }),
                   x.jsxs("div", {
-                    className: "space-y-3",
+                    className: "space-y-2",
                     children: [
                       x.jsx("div", {
-                        className: "text-lg font-mono font-black text-brand-gold",
-                        children: j.points > 0 ? `${j.points.toLocaleString()} P` : `${j.spades} ♠`
+                        className: "text-sm font-mono font-black text-brand-gold",
+                        children: j.points > 0 ? `Cost: ${j.points.toLocaleString()} P` : `Cost: ${j.spades} ♠`
                       }),
                       x.jsx("button", {
                         disabled: !L || n,
                         onClick: () => T(R),
-                        className: `w-full py-4 ${L ? "bg-brand-red hover:bg-red-600" : "bg-neutral-700"} text-white font-black uppercase tracking-[0.2em] text-lg rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl active:scale-95`,
+                        className: `w-full py-3 px-4 ${L ? "bg-brand-red hover:bg-red-600" : "bg-neutral-700"} text-white font-black uppercase tracking-[0.15em] text-sm rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl active:scale-95`,
                         children: n ? "Opening..." : "OPEN"
                       })
                     ]
@@ -3028,8 +3051,13 @@ const LootShop = ({ currentUser: t, onActivity: e }) => {
                       children: "You Got:"
                     }),
                     x.jsx("p", {
-                      className: "text-2xl font-mono font-black text-white mb-2",
+                      className: "text-2xl font-mono font-black text-white mb-1",
                       children: i.name
+                    }),
+                    x.jsx("p", {
+                      className: "text-sm font-bold mb-6",
+                      style: { color: i.color },
+                      children: i.label
                     }),
                     i.type === "points" && x.jsx("p", {
                       className: "text-xl text-brand-gold font-bold mb-8",
