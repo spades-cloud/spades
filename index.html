@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spades</title>
+    <title>Spades | The Elite Productivity Protocol</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
@@ -20,36 +20,47 @@
               brand: {
                 obsidian: '#050505',
                 charcoal: '#0a0a0a',
-                card: '#121212',
+                card: '#0d0d0d',
                 red: '#d92323',
-                deepRed: '#500808',
+                deepRed: '#3d0606',
                 gold: '#e2b15b',
                 goldDim: '#8a6d3b',
+                platinum: '#e5e5e5',
               }
             },
             animation: {
               'pulse-slow': 'pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'float': 'float 10s ease-in-out infinite',
-              'shine': 'shine 6s linear infinite',
-              'shimmer': 'shimmer 3s ease-in-out infinite alternate',
-              'glow': 'glow 4s ease-in-out infinite alternate',
+              'float': 'float 12s ease-in-out infinite',
+              'shine': 'shine 8s linear infinite',
+              'shimmer': 'shimmer 4s ease-in-out infinite alternate',
+              'glow': 'glow 6s ease-in-out infinite alternate',
+              'reveal': 'reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'border-flow': 'border-flow 4s linear infinite',
             },
             keyframes: {
               float: {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-15px)' },
+                '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                '50%': { transform: 'translateY(-25px) rotate(1deg)' },
               },
               shine: {
                 '0%': { backgroundPosition: '200% center' },
                 '100%': { backgroundPosition: '-200% center' },
               },
               shimmer: {
-                '0%': { opacity: 0.5 },
+                '0%': { opacity: 0.4 },
                 '100%': { opacity: 1 },
               },
               glow: {
-                '0%': { boxShadow: '0 0 10px rgba(217, 35, 35, 0.1)' },
-                '100%': { boxShadow: '0 0 30px rgba(217, 35, 35, 0.3), 0 0 15px rgba(226, 177, 91, 0.1)' }
+                '0%': { boxShadow: '0 0 15px rgba(217, 35, 35, 0.1)' },
+                '100%': { boxShadow: '0 0 45px rgba(217, 35, 35, 0.4), 0 0 20px rgba(226, 177, 91, 0.15)' }
+              },
+              reveal: {
+                '0%': { opacity: 0, transform: 'translateY(30px) scale(0.98)' },
+                '100%': { opacity: 1, transform: 'translateY(0) scale(1)' }
+              },
+              'border-flow': {
+                '0%': { backgroundPosition: '0% 50%' },
+                '100%': { backgroundPosition: '200% 50%' }
               }
             }
           }
@@ -57,15 +68,25 @@
       }
     </script>
     <style>
+      :root {
+        --brand-red: #d92323;
+        --brand-gold: #e2b15b;
+        --brand-obsidian: #050505;
+      }
+
       body {
         background-color: #020202;
         color: #f5f5f5;
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        cursor: none;
       }
       
-      /* Ultra-Premium Background */
+      html {
+        scroll-behavior: smooth;
+      }
+
       .cinematic-bg {
         position: fixed;
         top: 0;
@@ -73,8 +94,9 @@
         width: 100vw;
         height: 100vh;
         z-index: -1;
-        background: radial-gradient(circle at 50% -20%, #1a0505 0%, #020202 50%);
+        background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, -20%), #1a0505 0%, #020202 60%);
         pointer-events: none;
+        transition: background 0.2s ease-out;
       }
 
       .noise-overlay {
@@ -83,82 +105,195 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: -1;
-        opacity: 0.04;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        z-index: 1000;
+        opacity: 0.06;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         pointer-events: none;
         mix-blend-mode: overlay;
       }
 
-      /* Refined Scrollbar */
+      .cursor-dot {
+        width: 6px;
+        height: 6px;
+        background: white;
+        position: fixed;
+        border-radius: 50%;
+        z-index: 9999;
+        pointer-events: none;
+        transition: transform 0.1s ease;
+      }
+      .cursor-outline {
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: fixed;
+        border-radius: 50%;
+        z-index: 9998;
+        pointer-events: none;
+        transition: transform 0.15s ease-out, width 0.3s ease, height 0.3s ease, border 0.3s ease;
+      }
+      
+      .cursor-active .cursor-outline {
+        width: 60px;
+        height: 60px;
+        border-color: var(--brand-red);
+        background: rgba(217, 35, 35, 0.05);
+      }
+
       ::-webkit-scrollbar {
-        width: 4px;
+        width: 3px;
       }
       ::-webkit-scrollbar-track {
         background: #020202;
       }
       ::-webkit-scrollbar-thumb {
-        background: #333;
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #d92323;
+        background: linear-gradient(to bottom, #333, var(--brand-red), #333);
+        border-radius: 10px;
       }
       
-      /* High-End Glassmorphism */
       .glass-panel {
-        background: rgba(10, 10, 10, 0.6);
-        backdrop-filter: blur(24px) saturate(180%);
-        -webkit-backdrop-filter: blur(24px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        background: rgba(13, 13, 13, 0.7) !important;
+        backdrop-filter: blur(30px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.03) !important;
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6) !important;
       }
       
       .glass-card-hover {
-        transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1) !important;
       }
       .glass-card-hover:hover {
-        background: rgba(20, 20, 20, 0.8);
-        border-color: rgba(255, 255, 255, 0.1);
-        transform: translateY(-4px);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        background: rgba(20, 20, 20, 0.85) !important;
+        border-color: rgba(217, 35, 35, 0.3) !important;
+        transform: translateY(-8px) scale(1.02) !important;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8), 0 0 20px rgba(217, 35, 35, 0.1) !important;
       }
 
-      /* Gold Text Effect */
-      .text-gradient-gold {
-        background: linear-gradient(135deg, #fceeb5 0%, #e2b15b 50%, #8a6d3b 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-size: 100% auto;
+      .text-luxury {
+        letter-spacing: -0.02em;
+        line-height: 0.9;
       }
       
-      /* Red Text Effect */
+      .text-gradient-gold {
+        background: linear-gradient(135deg, #fff 0%, #fceeb5 20%, #e2b15b 50%, #8a6d3b 80%, #5c4827 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-size: 200% auto !important;
+        animation: shine 10s linear infinite !important;
+      }
+      
       .text-gradient-red {
-        background: linear-gradient(135deg, #ff8080 0%, #d92323 60%, #500808 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        background: linear-gradient(135deg, #ff4d4d 0%, #d92323 50%, #500808 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+      }
+
+      .reveal-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .reveal-on-scroll.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .premium-border {
+        position: relative;
+        overflow: hidden;
+      }
+      .premium-border::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        padding: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      @media (max-width: 768px) {
+        .cursor-dot, .cursor-outline { display: none; }
+        body { cursor: auto; }
       }
     </style>
 
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const dot = document.createElement('div');
+        dot.className = 'cursor-dot';
+        const outline = document.createElement('div');
+        outline.className = 'cursor-outline';
+        document.body.appendChild(dot);
+        document.body.appendChild(outline);
 
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react/": "https://esm.sh/react@19.0.0/",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "@google/genai": "https://esm.sh/@google/genai@1.32.0",
-    "lucide-react": "https://esm.sh/lucide-react@0.460.0?external=react,react-dom",
-    "recharts": "https://esm.sh/recharts@2.13.3?external=react,react-dom",
-    "path": "https://esm.sh/path-browserify@1.0.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "vite": "https://esm.sh/vite@^7.3.1"
-  }
-}
-</script>
-  <script type="module">
+        document.addEventListener('mousemove', (e) => {
+          const x = e.clientX;
+          const y = e.clientY;
+          dot.style.left = `${x}px`;
+          dot.style.top = `${y}px`;
+          outline.animate({
+            left: `${x - 20}px`,
+            top: `${y - 20}px`
+          }, { duration: 500, fill: 'forwards' });
+
+          const xPct = (x / window.innerWidth) * 100;
+          const yPct = (y / window.innerHeight) * 100;
+          document.body.style.setProperty('--mouse-x', `${xPct}%`);
+          document.body.style.setProperty('--mouse-y', `${yPct}%`);
+        });
+
+        document.addEventListener('mousedown', () => document.body.classList.add('cursor-active'));
+        document.addEventListener('mouseup', () => document.body.classList.remove('cursor-active'));
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('active');
+            }
+          });
+        }, { threshold: 0.1 });
+
+        const setupObserver = () => {
+          document.querySelectorAll('section, .glass-panel, .glass-card-hover').forEach(el => {
+            if (!el.classList.contains('reveal-on-scroll')) {
+              el.classList.add('reveal-on-scroll');
+              observer.observe(el);
+            }
+          });
+        };
+        
+        setupObserver();
+        setInterval(setupObserver, 2000); // Re-run for dynamic content
+      });
+    </script>
+  </head>
+  <body>
+    <div class="cinematic-bg"></div>
+    <div class="noise-overlay"></div>
+    <div id="root"></div>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react/": "https://esm.sh/react@19.0.0/",
+        "react-dom": "https://esm.sh/react-dom@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        "@google/genai": "https://esm.sh/@google/genai@1.32.0",
+        "lucide-react": "https://esm.sh/lucide-react@0.460.0?external=react,react-dom",
+        "recharts": "https://esm.sh/recharts@2.13.3?external=react,react-dom",
+        "path": "https://esm.sh/path-browserify@1.0.1",
+        "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "vite": "https://esm.sh/vite@^7.3.1"
+      }
+    }
+    </script>
+    <script type="module">
 var I6=Object.defineProperty;var N6=(t,e,n)=>e in t?I6(t,e,{enumerable:!0,configurable:!0,writable:!0,value:n}):t[e]=n;var w0=(t,e,n)=>N6(t,typeof e!="symbol"?e+"":e,n);function P6(t,e){for(var n=0;n<e.length;n++){const r=e[n];if(typeof r!="string"&&!Array.isArray(r)){for(const i in r)if(i!=="default"&&!(i in t)){const o=Object.getOwnPropertyDescriptor(r,i);o&&Object.defineProperty(t,i,o.get?o:{enumerable:!0,get:()=>r[i]})}}}return Object.freeze(Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}))}(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const i of document.querySelectorAll('link[rel="modulepreload"]'))r(i);new MutationObserver(i=>{for(const o of i)if(o.type==="childList")for(const l of o.addedNodes)l.tagName==="LINK"&&l.rel==="modulepreload"&&r(l)}).observe(document,{childList:!0,subtree:!0});function n(i){const o={};return i.integrity&&(o.integrity=i.integrity),i.referrerPolicy&&(o.referrerPolicy=i.referrerPolicy),i.crossOrigin==="use-credentials"?o.credentials="include":i.crossOrigin==="anonymous"?o.credentials="omit":o.credentials="same-origin",o}function r(i){if(i.ep)return;i.ep=!0;const o=n(i);fetch(i.href,o)}})();function ea(t){return t&&t.__esModule&&Object.prototype.hasOwnProperty.call(t,"default")?t.default:t}var S0={exports:{}},gf={};/**
  * @license React
  * react-jsx-runtime.production.js
